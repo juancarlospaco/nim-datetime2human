@@ -1,7 +1,7 @@
 # nim-datetime2human
 
 Calculate date &amp; time with precision from seconds to millenniums.
-Human friendly date time as string. ISO-8601 representation and more.
+Human friendly date time as string. ISO-8601.
 
 ![screenshot](https://source.unsplash.com/BXOXnQ26B7o/800x402 "Illustrative Photo by https://unsplash.com/@aronvisuals")
 
@@ -44,6 +44,8 @@ The proc only accepts `DateTime`.
 - `datetime_obj` A valid `DateTime` object, `DateTime` type, required.
 
 **Returns:** `HumanTimes` type, a tuple.
+
+</details>
 
 
 <details>
