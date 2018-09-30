@@ -1,32 +1,18 @@
-#!/usr/bin/nim c -r
+import times, strformat, strutils, pylib
 
 
-import times
-import pylib
-import strformat
-import strutils
-
-
-type HumanFriendlyTimeUnits = tuple[
+type HumanFriendlyTimeUnits* = tuple[
   seconds: int, minutes: int, hours: int, days: int, weeks: int,
-  months: int, years: int, decades: int, centuries: int, millenniums: int]
-type HumanTimes = tuple[
-  human: string, short: string, iso: string, units: HumanFriendlyTimeUnits]
+  months: int, years: int, decades: int, centuries: int, millenniums: int]  ## Tuple of Human Friendly Time Units.
+
+type HumanTimes* = tuple[
+  human: string, short: string, iso: string, units: HumanFriendlyTimeUnits] ## Tuple of Human Friendly Time Units as strings.
 
 
-proc datetime2human*(datetime_obj: DateTime, iso_sep: char=' '): HumanTimes =
+func datetime2human*(datetime_obj: DateTime, iso_sep: char=' '): HumanTimes =
   ## Calculate date & time, with precision from seconds to millenniums.
 
-  var seconds: int
-  var minutes: int
-  var hours: int
-  var days: int
-  var weeks: int
-  var months: int
-  var years: int
-  var decades: int
-  var centuries: int
-  var millenniums: int
+  var seconds, minutes, hours, days, weeks, months, years, decades, centuries, millenniums: int
 
   (minutes, seconds)       = divmod(int(toUnix(datetime_obj.toTime)), 60)
   (hours, minutes)         = divmod(minutes, 60)
@@ -111,6 +97,7 @@ proc now2human*(): HumanTimes =  # Just a shortcut :)
   datetime2human(now())
 
 
-if is_main_module:
+runnableExamples:
+  import times
   echo datetime2human(now())
   echo now2human()
