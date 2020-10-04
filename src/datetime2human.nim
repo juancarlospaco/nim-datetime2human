@@ -9,17 +9,13 @@ type HumanTimes* = tuple[
   human: string, short: string, iso: string, units: HumanFriendlyTimeUnits] ## Tuple of Human Friendly Time Units as strings.
 
 
-template divmod(a, b: SomeInteger): array[0..1, int] =
+template divmod(a, b: SomeInteger): array[2, int] =
   [int(a / b), int(a mod b)]
 
 func datetime2human*(datetimeObj: DateTime, isoSep: char = ' ', lower = false): HumanTimes =
   ## Calculate date & time, with precision from seconds to millenniums.
 
-  var
-    timeParts: seq[string]
-    humanTimeAuto, thisTime: string
-    seconds, minutes, hours, days, weeks, months, years, decades, centuries, millenniums: int
-
+  var seconds, minutes, hours, days, weeks, months, years, decades, centuries, millenniums {.noInit.}: int
   (minutes, seconds) = divmod(int(toUnix(datetimeObj.toTime)), 60)
   (hours, minutes) = divmod(minutes, 60)
   (days, hours) = divmod(hours, 24)
@@ -30,69 +26,72 @@ func datetime2human*(datetimeObj: DateTime, isoSep: char = ' ', lower = false): 
   (centuries, decades) = divmod(decades, 10)
   (millenniums, centuries) = divmod(centuries, 10)
 
-  # Build a tuple with all named time units and all its integer values.
-  let timeUnits: HumanFriendlyTimeUnits = (
-    seconds: seconds, minutes: minutes, hours: hours, days: days,
-    weeks: weeks, months: months, years: years, decades: decades,
-    centuries: centuries, millenniums: millenniums)
 
   # Build a human friendly time string with frequent time units.
-  if millenniums > 0:
+  var timeParts: array[10, string]
+  var humanTimeAuto, thisTime: string
+  if unlikely(millenniums > 0):
     thisTime = $millenniums & " Millenniums"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
-  if centuries > 0:
+    timeParts[0] = thisTime
+  if unlikely(centuries > 0):
     thisTime = $centuries & " Centuries"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
-  if decades > 0:
+    timeParts[1] = thisTime
+  if unlikely(decades > 0):
     thisTime = $decades & " Decades"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[2] = thisTime
   if years > 0:
     thisTime = $years & " Years"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[3] = thisTime
   if months > 0:
     thisTime = $months & " Months"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[4] = thisTime
   if weeks > 0:
     thisTime = $weeks & " Weeks"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[5] = thisTime
   if days > 0:
     thisTime = $days & " Days"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[6] = thisTime
   if hours > 0:
     thisTime = $hours & " Hours"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[7] = thisTime
   if minutes > 0:
     thisTime = $minutes & " Minutes"
     if humanTimeAuto.len == 0:
       humanTimeAuto = thisTime
-    timeParts.add(thisTime)
+    timeParts[8] = thisTime
   if humanTimeAuto.len == 0:
     humanTimeAuto = $seconds & " Seconds"
-  timeParts.add($seconds & " Seconds")
+  timeParts[9] = $seconds & " Seconds"
 
-  # Get a Human string ISO-8601 representation.
-  let isoDatetime = replace($datetimeObj, "T", $isoSep)
 
   result = (
     human: if lower: timeParts.join(" ").toLowerAscii else: timeParts.join(" "),
     short: if lower: humanTimeAuto.toLowerAscii else: humanTimeAuto,
-    iso: isoDatetime, units: timeUnits)
+    # Get a Human string ISO-8601 representation.
+    iso: replace($datetimeObj, "T", $isoSep),
+    # Build a tuple with all named time units and all its integer values.
+    units: cast[HumanFriendlyTimeUnits]((
+      seconds: seconds, minutes: minutes, hours: hours, days: days,
+      weeks: weeks, months: months, years: years, decades: decades,
+      centuries: centuries, millenniums: millenniums
+    ))
+  )
 
 
 template now2human*(isoSep: char = ' ', lower = false): HumanTimes =
