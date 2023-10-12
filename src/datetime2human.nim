@@ -9,8 +9,8 @@ type HumanTimes* = tuple[
   human: string, short: string, iso: string, units: HumanFriendlyTimeUnits] ## Tuple of Human Friendly Time Units as strings.
 
 
-template divmod(a, b: SomeInteger): array[2, int] =
-  [int(a / b), int(a mod b)]
+template divmod(a, b: SomeInteger): (int, int) =
+  (int(a / b), int(a mod b))
 
 func datetime2human*(datetimeObj: DateTime, isoSep: char = ' ', lower = false): HumanTimes =
   ## Calculate date & time, with precision from seconds to millenniums.
